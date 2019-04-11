@@ -1,0 +1,178 @@
+[
+    {
+       "id":"333a8ac1.68f79e",
+       "type":"tab",
+       "label":"Tweet Analyzer",
+       "disabled":false,
+       "info":""
+    },
+    {
+       "id":"58781500.618384",
+       "type":"watson-tone-analyzer-v3",
+       "z":"333a8ac1.68f79e",
+       "name":"",
+       "tones":"emotion",
+       "sentences":"false",
+       "contentType":"false",
+       "tone-method":"generalTone",
+       "interface-version":"2016-05-19",
+       "inputlang":"en",
+       "default-endpoint":true,
+       "service-endpoint":"https://gateway.watsonplatform.net/tone-analyzer/api",
+       "x":380,
+       "y":260,
+       "wires":[
+          [
+             "5c53cf87.e35a28"
+          ]
+       ]
+    },
+    {
+       "id":"85d23bb1.8a07c8",
+       "type":"function",
+       "z":"333a8ac1.68f79e",
+       "name":"Prepares payload for Analyzer",
+       "func":"msg.payload = msg.payload.tweet\nreturn msg;",
+       "outputs":1,
+       "noerr":0,
+       "x":290,
+       "y":200,
+       "wires":[
+          [
+             "58781500.618384"
+          ]
+       ]
+    },
+    {
+       "id":"ae834353.a52",
+       "type":"http in",
+       "z":"333a8ac1.68f79e",
+       "name":"Tone Analyzer Challenge",
+       "url":"/analyze",
+       "method":"get",
+       "upload":false,
+       "swaggerDoc":"",
+       "x":136.5,
+       "y":144.79998779296875,
+       "wires":[
+          [
+             "85d23bb1.8a07c8"
+          ]
+       ]
+    },
+    {
+       "id":"b2669b94.e7003",
+       "type":"http response",
+       "z":"333a8ac1.68f79e",
+       "name":"Response",
+       "statusCode":"",
+       "headers":{
+ 
+       },
+       "x":580,
+       "y":380,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"5c53cf87.e35a28",
+       "type":"function",
+       "z":"333a8ac1.68f79e",
+       "name":"Prepares Response",
+       "func":"var toneScores = [];\nvar toneIDs = [];\nvar biggestScore = 0.0;\nvar emotion;\nvar response;\n\n//Store returned values from JSON\nfor (var i = 0; i < 5; i++) {\n    toneScores.push(msg.response.document_tone.tone_categories[0].tones[i].score)\n    toneIDs.push(msg.response.document_tone.tone_categories[0].tones[i].tone_id)\n}\n\n//Looks for biggest score\nfor (var i = 0; i < 5; i++) {\n    if (toneScores[i] > biggestScore) {\n        biggestScore = toneScores[i];\n        emotion = toneIDs[i];\n    }\n}\n\nif (biggestScore >= 0.5) {\n    switch (emotion) {\n        case \"joy\":\n            response = \"😃\";\n            break;\n        default:\n            response = \"😔\";\n    }\n} else {\n    response = \"😐\";\n}\n\nmsg.payload = {\n    response: response\n}\n\nreturn msg;",
+       "outputs":1,
+       "noerr":0,
+       "x":500,
+       "y":320,
+       "wires":[
+          [
+             "b2669b94.e7003"
+          ]
+       ]
+    },
+    {
+       "id":"64a497b8.cb1ae",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Creates API",
+       "info":"Declares the HTTP request on the /analyze endpoint",
+       "x":370,
+       "y":140,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"67dc31fa.aad218",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Read input text",
+       "info":"Fetch value from tweet parameter and moves it to msg.paylod, so it can be read by the TOne Analyzer node",
+       "x":560,
+       "y":200,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"e926e420.b87358",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Analyzes text",
+       "info":"",
+       "x":590,
+       "y":260,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"8323ea04.74a5f",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Prepares JSON",
+       "info":"Reads the response JSON from the Tone Analyzer node and prepare the JSON to be returned by the API",
+       "x":740,
+       "y":320,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"53e0746.70fb20c",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Returns JSON",
+       "info":"Returns the generated JSON from the previous node",
+       "x":750,
+       "y":380,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"24850ae9.f55c8e",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"You can click on a node to see more info on the Info tab",
+       "info":"",
+       "x":220,
+       "y":80,
+       "wires":[
+ 
+       ]
+    },
+    {
+       "id":"c28b4909.b1c768",
+       "type":"comment",
+       "z":"333a8ac1.68f79e",
+       "name":"Tweet Analyzer",
+       "info":"This is an RESTful API I created to analyze sentiment from a tweet\nYou can try this API out by using the following URL:\n*   https://desafioifood.mybluemix.net/analyze?tweet=YOUR_TEXT_HERE\n",
+       "x":100,
+       "y":40,
+       "wires":[
+ 
+       ]
+    }
+ ]
